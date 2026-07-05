@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-app",
-  "version": "0.1.0",
-  "identifier": "com.sharm.tauri-app",
+  "productName": "MediaPull",
+  "version": "1.0.0",
+  "identifier": "com.gautamcoder.mediapull",
   "build": {
     "frontendDist": "../src"
   },
