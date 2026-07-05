@@ -255,31 +255,17 @@ body {
   padding: 12px 0;
 }
 
-.logo-badge {
+.logo-badge-img {
   width: 52px;
   height: 52px;
-  background: linear-gradient(135deg, rgba(122, 162, 247, 0.1), rgba(158, 206, 106, 0.1));
-  border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: contain;
   margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, border-color var(--transition-speed);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
+  transition: transform 0.3s ease;
 }
 
-.logo-badge:hover {
+.logo-badge-img:hover {
   transform: scale(1.08) rotate(4deg);
-  border-color: var(--accent);
-}
-
-.logo-icon {
-  width: 28px;
-  height: 28px;
-  fill: var(--accent);
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  transition: fill var(--transition-speed);
 }
 
 .logo-title {
@@ -971,13 +957,7 @@ button.btn-secondary:hover {
   object-fit: contain;
 }
 
-.logo-icon-img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-  transition: transform 0.3s ease;
-}
+
 
 /* Startup Splash Screen Overlay */
 .splash-screen {
