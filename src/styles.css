@@ -149,10 +149,88 @@ body {
   transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
+/* Custom Window Titlebar */
+.titlebar {
+  height: 32px;
+  background-color: var(--panel-bg);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+.titlebar-drag-region {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  cursor: default;
+}
+
+.titlebar-logo {
+  font-size: 0.95rem;
+  margin-right: 8px;
+}
+
+.titlebar-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.titlebar-controls {
+  display: flex;
+  height: 100%;
+}
+
+.titlebar-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 46px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.15s ease;
+}
+
+.titlebar-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--text-secondary);
+}
+
+.titlebar-btn:hover {
+  background-color: var(--entry-bg);
+}
+
+.titlebar-btn:hover svg {
+  fill: var(--text-primary);
+}
+
+.titlebar-btn-close:hover {
+  background-color: #e81123 !important;
+}
+
+.titlebar-btn-close:hover svg {
+  fill: #ffffff !important;
+}
+
 .container {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 32px);
   width: 100vw;
+  margin-top: 32px;
+  overflow: hidden;
 }
 
 /* Sidebar Styling */

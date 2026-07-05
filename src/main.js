@@ -751,6 +751,34 @@ function initDownloaderButtons() {
   document.getElementById("btn-cancel-dl").addEventListener("click", cancelActiveDownload);
 }
 
+// Safely evaluate Tauri window control helper
+async function handleWindowAction(action) {
+  if (window.__TAURI__ && window.__TAURI__.window && window.__TAURI__.window.getCurrentWindow) {
+    const appWindow = window.__TAURI__.window.getCurrentWindow();
+    if (action === "minimize") {
+      await appWindow.minimize();
+    } else if (action === "maximize") {
+      const isMax = await appWindow.isMaximized();
+      if (isMax) {
+        await appWindow.unmaximize();
+      } else {
+        await appWindow.maximize();
+      }
+    } else if (action === "close") {
+      await appWindow.close();
+    }
+  } else {
+    console.warn(`Tauri window control not available. Mocking window action: ${action}`);
+  }
+}
+
+// Initialise custom window titlebar buttons
+function initTitlebarControls() {
+  document.getElementById("titlebar-minimize").addEventListener("click", () => handleWindowAction("minimize"));
+  document.getElementById("titlebar-maximize").addEventListener("click", () => handleWindowAction("maximize"));
+  document.getElementById("titlebar-close").addEventListener("click", () => handleWindowAction("close"));
+}
+
 // Disable default browser behaviors (shortcuts and right-click) to give a native feel
 function disableBrowserDefaults() {
   // Prevent context menu (right-click inspector)
@@ -786,6 +814,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   
   // Disable default browser behaviors
   disableBrowserDefaults();
+  
+  // Initialise window controls
+  initTitlebarControls();
   
   // Set default save folder to user's home downloads dir or generic Downloads
   document.getElementById("save-folder").value = "C:\\Users\\sharm\\Downloads"; // Fallback static representation, select_folder works dynamically

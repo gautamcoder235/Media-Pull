@@ -9,6 +9,25 @@
   </head>
 
   <body class="theme-tokyonight">
+    <!-- CUSTOM TITLEBAR -->
+    <div class="titlebar">
+      <div class="titlebar-drag-region" data-tauri-drag-region>
+        <span class="titlebar-logo">🌐</span>
+        <span class="titlebar-text">MediaPull</span>
+      </div>
+      <div class="titlebar-controls">
+        <button class="titlebar-btn" id="titlebar-minimize" title="Minimize">
+          <svg viewBox="0 0 24 24"><path d="M19,13H5V11H19V13Z" /></svg>
+        </button>
+        <button class="titlebar-btn" id="titlebar-maximize" title="Maximize">
+          <svg viewBox="0 0 24 24"><path d="M4,4H20V20H4V4M6,8V18H18V8H6Z" /></svg>
+        </button>
+        <button class="titlebar-btn titlebar-btn-close" id="titlebar-close" title="Close">
+          <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+        </button>
+      </div>
+    </div>
+
     <div class="container">
       <!-- LEFT SIDEBAR -->
       <aside class="sidebar">
