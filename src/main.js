@@ -758,12 +758,7 @@ async function handleWindowAction(action) {
     if (action === "minimize") {
       await appWindow.minimize();
     } else if (action === "maximize") {
-      const isMax = await appWindow.isMaximized();
-      if (isMax) {
-        await appWindow.unmaximize();
-      } else {
-        await appWindow.maximize();
-      }
+      await appWindow.toggleMaximize();
     } else if (action === "close") {
       await appWindow.close();
     }
