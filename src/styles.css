@@ -962,3 +962,138 @@ button.btn-secondary:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
+
+/* Header & Sidebar Logo Images */
+.titlebar-logo-img {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  object-fit: contain;
+}
+
+.logo-icon-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease;
+}
+
+/* Startup Splash Screen Overlay */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--app-bg);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s;
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.splash-logo-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  z-index: 2;
+  animation: pulse-logo 2s infinite ease-in-out;
+}
+
+.splash-glow {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 100px;
+  height: 100px;
+  border-radius: 30px;
+  background: var(--accent);
+  filter: blur(25px);
+  opacity: 0.45;
+  z-index: 1;
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.splash-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 16px 0;
+  line-height: 1;
+}
+
+.splash-loader {
+  width: 200px;
+  height: 4px;
+  background-color: var(--entry-bg);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.splash-loader-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-green));
+  border-radius: 2px;
+  animation: load-progress 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.splash-status {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  animation: status-pulse 1.5s infinite ease-in-out;
+}
+
+/* Startup Animations */
+@keyframes pulse-logo {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; filter: blur(20px); }
+  50% { opacity: 0.7; filter: blur(30px); }
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes load-progress {
+  0% { width: 0%; }
+  30% { width: 45%; }
+  60% { width: 75%; }
+  100% { width: 100%; }
+}

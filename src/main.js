@@ -891,5 +891,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   });
   
+  // Dismiss splash screen loader with a small timeout for premium feels
+  setTimeout(() => {
+    const splash = document.getElementById("splash-screen");
+    if (splash) {
+      splash.classList.add("fade-out");
+    }
+  }, 2200);
+  
   logToConsole("MediaPull successfully initialized. Ready to download.");
 });

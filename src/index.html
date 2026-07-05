@@ -9,10 +9,25 @@
   </head>
 
   <body class="theme-tokyonight">
+    <!-- STARTUP SPLASH SCREEN -->
+    <div id="splash-screen" class="splash-screen">
+      <div class="splash-content">
+        <div class="splash-logo-container">
+          <img src="assets/logo.png" class="splash-logo" alt="MediaPull Logo" />
+          <div class="splash-glow"></div>
+        </div>
+        <h1 class="splash-title">MediaPull</h1>
+        <div class="splash-loader">
+          <div class="splash-loader-bar"></div>
+        </div>
+        <span class="splash-status">Initializing system modules...</span>
+      </div>
+    </div>
+
     <!-- CUSTOM TITLEBAR -->
     <div class="titlebar">
       <div class="titlebar-drag-region" data-tauri-drag-region>
-        <span class="titlebar-logo">🌐</span>
+        <img src="assets/logo.png" class="titlebar-logo-img" alt="MediaPull Logo" />
         <span class="titlebar-text">MediaPull</span>
       </div>
       <div class="titlebar-controls">
@@ -32,6 +47,9 @@
       <!-- LEFT SIDEBAR -->
       <aside class="sidebar">
         <div class="logo-area">
+          <div class="logo-badge">
+            <img src="assets/logo.png" class="logo-icon-img" alt="MediaPull Logo" />
+          </div>
           <h1 class="logo-title">MediaPull</h1>
           <span class="logo-tagline">Download once. Watch forever.</span>
         </div>
