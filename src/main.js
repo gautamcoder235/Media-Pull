@@ -416,6 +416,11 @@ function setDownloadButtonsState(downloading) {
   buttons.forEach(btn => btn.disabled = downloading);
   document.getElementById("progress-panel").style.display = downloading ? "block" : "block"; // keep visible to review final completion
   
+  const cancelBtn = document.getElementById("btn-cancel-dl");
+  if (cancelBtn) {
+    cancelBtn.style.display = downloading ? "inline-block" : "none";
+  }
+  
   if (downloading) {
     document.getElementById("progress-bar-fill").style.width = "0%";
     document.getElementById("progress-percent-lbl").textContent = "0%";
