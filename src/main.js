@@ -511,6 +511,36 @@ async function initFilePickers() {
     }
   });
 
+  // Settings: FFmpeg automatic downloader
+  document.getElementById("btn-settings-ffmpeg-download").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-settings-ffmpeg-download");
+    const statusEl = document.getElementById("ffmpeg-dl-status");
+    
+    btn.disabled = true;
+    statusEl.textContent = "Initiating installer...";
+    logToConsole("Starting automatic FFmpeg downloader...");
+    
+    try {
+      const newPath = await invoke("download_ffmpeg");
+      statusEl.textContent = "FFmpeg installation completed!";
+      logToConsole(`FFmpeg successfully downloaded and installed at: ${newPath}`);
+      
+      // Update UI paths
+      document.getElementById("settings-ffmpeg").value = newPath;
+      appSettings.ffmpeg_path = newPath;
+      await saveSettings();
+      
+      // Verify path immediately
+      await verifyBinaryPath(newPath, "ffmpeg", "badge-ffmpeg", "version-ffmpeg");
+    } catch (err) {
+      statusEl.textContent = "Installation failed.";
+      logToConsole(`FFmpeg downloader failed: ${err}`, "error");
+      alert(`FFmpeg installation failed:\n${err}`);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
   document.getElementById("btn-settings-ffmpeg-verify").addEventListener("click", () => {
     const path = document.getElementById("settings-ffmpeg").value;
     verifyBinaryPath(path, "ffmpeg", "badge-ffmpeg", "version-ffmpeg");
@@ -829,6 +859,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   
   // Connect Event listeners
   await setupDownloadListeners();
+
+  // Listen to FFmpeg automatic downloader status changes
+  await listen("ffmpeg-download-status", (event) => {
+    document.getElementById("ffmpeg-dl-status").textContent = event.payload;
+    logToConsole(`FFmpeg Installer: ${event.payload}`);
+  });
   
   // Handle About Page Link Clicks (opening in default system browser)
   document.querySelectorAll(".about-link").forEach(link => {

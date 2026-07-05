@@ -103,6 +103,115 @@ fn verify_binary(path: String, name: String) -> Result<String, String> {
 }
 
 #[tauri::command]
+async fn download_ffmpeg(window: tauri::Window, app_handle: tauri::AppHandle) -> Result<String, String> {
+    let app_dir = app_handle.path().app_config_dir()
+        .map_err(|e| format!("Failed to get app config dir: {}", e))?;
+    let ffmpeg_dir = app_dir.join("ffmpeg");
+    
+    let window_clone = window.clone();
+    
+    let res = tokio::task::spawn_blocking(move || {
+        let _ = window_clone.emit("ffmpeg-download-status", "Downloading FFmpeg archive (approx. 100MB)...");
+        
+        let temp_dir = std::env::temp_dir();
+        let zip_path = temp_dir.join("ffmpeg_temp.zip");
+        let extract_path = temp_dir.join("ffmpeg_extracted");
+        
+        if extract_path.exists() {
+            let _ = std::fs::remove_dir_all(&extract_path);
+        }
+        let _ = std::fs::create_dir_all(&extract_path);
+        
+        let download_status = std::process::Command::new("powershell")
+            .arg("-NoProfile")
+            .arg("-Command")
+            .arg(format!(
+                "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile '{}'",
+                zip_path.to_string_lossy()
+            ))
+            .status();
+            
+        match download_status {
+            Ok(status) if status.success() => {},
+            _ => return Err("Failed to download FFmpeg zip archive. Please check your internet connection.".to_string()),
+        }
+        
+        let _ = window_clone.emit("ffmpeg-download-status", "Extracting FFmpeg ZIP (this may take a minute)...");
+        
+        let extract_status = std::process::Command::new("powershell")
+            .arg("-NoProfile")
+            .arg("-Command")
+            .arg(format!(
+                "Expand-Archive -Path '{}' -DestinationPath '{}' -Force",
+                zip_path.to_string_lossy(),
+                extract_path.to_string_lossy()
+            ))
+            .status();
+            
+        let _ = std::fs::remove_file(&zip_path);
+        
+        match extract_status {
+            Ok(status) if status.success() => {},
+            _ => return Err("Failed to extract FFmpeg ZIP archive.".to_string()),
+        }
+        
+        let _ = window_clone.emit("ffmpeg-download-status", "Configuring paths and cleaning up...");
+        
+        let mut ffmpeg_bin_path = None;
+        for entry in walk_dir(&extract_path) {
+            if entry.file_name().and_then(|n| n.to_str()) == Some("ffmpeg.exe") {
+                ffmpeg_bin_path = Some(entry.parent().unwrap().to_path_buf());
+                break;
+            }
+        }
+        
+        if let Some(bin_dir) = ffmpeg_bin_path {
+            if ffmpeg_dir.exists() {
+                let _ = std::fs::remove_dir_all(&ffmpeg_dir);
+            }
+            std::fs::create_dir_all(&ffmpeg_dir)
+                .map_err(|e| format!("Failed to create destination directory: {}", e))?;
+                
+            for entry in std::fs::read_dir(&bin_dir).map_err(|e| e.to_string())? {
+                if let Ok(e) = entry {
+                    let file_type = e.file_type().map_err(|err| err.to_string())?;
+                    if file_type.is_file() {
+                        let dest = ffmpeg_dir.join(e.file_name());
+                        std::fs::copy(e.path(), dest).map_err(|err| err.to_string())?;
+                    }
+                }
+            }
+            
+            let _ = std::fs::remove_dir_all(&extract_path);
+            
+            Ok(ffmpeg_dir.to_string_lossy().to_string())
+        } else {
+            let _ = std::fs::remove_dir_all(&extract_path);
+            Err("ffmpeg.exe was not found in the downloaded archive.".to_string())
+        }
+    }).await.map_err(|e| format!("Task execution failed: {}", e))?;
+    
+    res
+}
+
+fn walk_dir(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut files = Vec::new();
+    if let Ok(entries) = std::fs::read_dir(dir) {
+        for entry in entries {
+            if let Ok(e) = entry {
+                let path = e.path();
+                if path.is_dir() {
+                    files.extend(walk_dir(&path));
+                } else {
+                    files.push(path);
+                }
+            }
+        }
+    }
+    files
+}
+
+#[tauri::command]
 fn load_app_settings(app_handle: tauri::AppHandle) -> Result<serde_json::Value, String> {
     let config_dir = app_handle.path().app_config_dir().map_err(|e| e.to_string())?;
     let settings_file = config_dir.join("app_settings.json");
@@ -465,7 +574,8 @@ pub fn run() {
             download_media,
             cancel_download,
             merge_media,
-            convert_audio_format
+            convert_audio_format,
+            download_ffmpeg
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
