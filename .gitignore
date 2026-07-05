@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# User credentials and cookies
+cookies.txt
+*cookies*.txt
+*cookie*.txt
+*.session
