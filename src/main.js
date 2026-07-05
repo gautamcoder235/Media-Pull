@@ -736,7 +736,7 @@ function initDownloaderButtons() {
 
   document.getElementById("btn-dl-video").addEventListener("click", () => {
     const val = document.getElementById("select-video-only").value;
-    if (val) startDownload(val);
+    if (val) startDownload(`${val}+bestaudio`);
   });
 
   document.getElementById("btn-dl-audio").addEventListener("click", () => {
