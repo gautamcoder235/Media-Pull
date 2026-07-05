@@ -4,6 +4,16 @@ use regex::Regex;
 use tauri::Emitter;
 use tauri::Manager;
 
+fn create_command(program: &str) -> Command {
+    let mut cmd = Command::new(program);
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+    }
+    cmd
+}
+
 #[derive(Default)]
 pub struct ActiveDownload {
     child: std::sync::Arc<std::sync::Mutex<Option<std::process::Child>>>,
@@ -87,7 +97,7 @@ fn verify_binary(path: String, name: String) -> Result<String, String> {
     } else {
         "--version"
     };
-    let output = Command::new(&bin_path)
+    let output = create_command(&bin_path)
         .arg(version_arg)
         .output()
         .map_err(|e| format!("Binary not found or execution failed: {}", e))?;
@@ -122,7 +132,7 @@ async fn download_ffmpeg(window: tauri::Window, app_handle: tauri::AppHandle) ->
         }
         let _ = std::fs::create_dir_all(&extract_path);
         
-        let download_status = std::process::Command::new("powershell")
+        let download_status = create_command("powershell")
             .arg("-NoProfile")
             .arg("-Command")
             .arg(format!(
@@ -138,7 +148,7 @@ async fn download_ffmpeg(window: tauri::Window, app_handle: tauri::AppHandle) ->
         
         let _ = window_clone.emit("ffmpeg-download-status", "Extracting FFmpeg ZIP (this may take a minute)...");
         
-        let extract_status = std::process::Command::new("powershell")
+        let extract_status = create_command("powershell")
             .arg("-NoProfile")
             .arg("-Command")
             .arg(format!(
@@ -286,8 +296,9 @@ fn fetch_video_metadata(
 ) -> Result<String, String> {
     let ytdlp_bin = get_binary_path(ytdlp_path, "yt-dlp")?;
     
-    let mut cmd = Command::new(&ytdlp_bin);
-    cmd.args(&["--dump-json", "--skip-download", &url]);
+    let mut cmd = create_command(&ytdlp_bin);
+    cmd.env("PYTHONWARNINGS", "ignore");
+    cmd.args(&["--dump-json", "--skip-download", "--no-warnings", &url]);
     
     if let Some(cookies) = cookies_path {
         if !cookies.trim().is_empty() {
@@ -328,6 +339,7 @@ fn download_media(
     
     let mut args = vec![
         "--newline".to_string(),
+        "--no-warnings".to_string(),
         "-f".to_string(),
         format_id,
         "-P".to_string(),
@@ -368,11 +380,13 @@ fn download_media(
         args.push("192K".to_string());
     }
 
-    let child = Command::new(&ytdlp_bin)
-        .args(&args)
+    let mut cmd = create_command(&ytdlp_bin);
+    cmd.env("PYTHONWARNINGS", "ignore");
+    cmd.args(&args)
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
+        .stderr(Stdio::piped());
+        
+    let child = cmd.spawn()
         .map_err(|e| format!("Failed to start download process: {}", e))?;
         
     {
@@ -506,7 +520,7 @@ fn merge_media(
 ) -> Result<String, String> {
     let ffmpeg_bin = get_binary_path(ffmpeg_path, "ffmpeg")?;
     
-    let output = Command::new(&ffmpeg_bin)
+    let output = create_command(&ffmpeg_bin)
         .args(&["-y", "-i", &video_path, "-i", &audio_path, "-c:v", "copy", "-c:a", "copy", &out_path])
         .output()
         .map_err(|e| format!("Failed to execute ffmpeg: {}", e))?;
@@ -538,7 +552,7 @@ fn convert_audio_format(
     args.extend(codec);
     args.push(&out_path);
     
-    let output = Command::new(&ffmpeg_bin)
+    let output = create_command(&ffmpeg_bin)
         .args(&args)
         .output()
         .map_err(|e| format!("Failed to execute ffmpeg: {}", e))?;
