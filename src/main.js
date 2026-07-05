@@ -320,7 +320,11 @@ async function fetchVideoInfo() {
   } catch (err) {
     dashboard.style.display = "none";
     logToConsole(`Failed to fetch metadata: ${err}`, "error");
-    alert(`Failed to fetch metadata:\n${err}`);
+    if (err.toString().includes("Could not copy") && err.toString().includes("cookie database")) {
+      alert(`Failed to fetch metadata:\n\nYour selected browser's cookies database is currently locked because the browser is open.\n\nPlease CLOSE the browser completely (or use the custom cookies.txt method) and try again!`);
+    } else {
+      alert(`Failed to fetch metadata:\n${err}`);
+    }
   }
 }
 
@@ -446,7 +450,11 @@ async function startDownload(formatId, convertToMp3 = false) {
     });
   } catch (err) {
     logToConsole(`Download failed to initiate: ${err}`, "error");
-    alert(`Download failed to start:\n${err}`);
+    if (err.toString().includes("Could not copy") && err.toString().includes("cookie database")) {
+      alert(`Download failed to start:\n\nYour selected browser's cookies database is currently locked because the browser is open.\n\nPlease CLOSE the browser completely (or use the custom cookies.txt method) and try again!`);
+    } else {
+      alert(`Download failed to start:\n${err}`);
+    }
     setDownloadButtonsState(false);
   }
 }
