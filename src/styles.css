@@ -458,6 +458,11 @@ select {
   transition: border-color var(--transition-speed);
 }
 
+select option {
+  background-color: var(--panel-bg);
+  color: var(--text-primary);
+}
+
 select:focus {
   border-color: var(--accent);
 }
