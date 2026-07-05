@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediaPull — Media Downloader</title>
+    <script type="module" src="main.js" defer></script>
+  </head>
+
+  <body class="theme-tokyonight">
+    <div class="container">
+      <!-- LEFT SIDEBAR -->
+      <aside class="sidebar">
+        <div class="logo-area">
+          <h1 class="logo-title">MediaPull</h1>
+          <span class="logo-tagline">Download once. Watch forever.</span>
+        </div>
+        
+        <nav class="nav-menu">
+          <button class="nav-item active" data-target="page-downloader">
+            <svg viewBox="0 0 24 24">
+              <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
+            </svg>
+            <span>Downloader</span>
+          </button>
+          
+          <button class="nav-item" data-target="page-tools">
+            <svg viewBox="0 0 24 24">
+              <path d="M22.7,19L13.6,9.9C14.5,7.6 14,4.9 12.1,3C10.1,1 7.2,0.6 4.8,1.8L9,6L6,9L1.8,4.8C0.6,7.2 1,10.1 3,12.1C4.9,14 7.6,14.5 9.9,13.6L19,22.7C19.4,23.1 20,23.1 20.4,22.7L22.7,20.4C23.1,20 23.1,19.4 22.7,19Z" />
+            </svg>
+            <span>Tools</span>
+          </button>
+          
+          <button class="nav-item" data-target="page-settings">
+            <svg viewBox="0 0 24 24">
+              <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.97 21.66,8.76L19.66,5.3C19.54,5.08 19.28,5 19.06,5.09L16.56,6.1C16.04,5.7 15.47,5.38 14.86,5.12L14.47,2.45C14.43,2.22 14.24,2 14,2H10C9.76,2 9.57,2.22 9.53,2.45L9.14,5.12C8.53,5.38 7.96,5.7 7.44,6.1L4.94,5.09C4.72,5 4.46,5.08 4.34,5.3L2.34,8.76C2.22,8.97 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.03 2.34,15.24L4.34,18.7C4.46,18.92 4.72,19 4.94,18.91L7.44,17.9C7.96,18.3 8.53,18.62 9.14,18.88L9.53,21.55C9.57,21.78 9.76,22 10,22H14C14.24,22 14.43,21.78 14.47,21.55L14.86,18.88C15.47,18.62 16.04,18.3 16.56,17.9L19.06,18.91C19.28,19 19.54,18.92 19.66,18.7L21.66,15.24C21.78,15.03 21.73,14.78 21.54,14.63L19.43,12.97Z" />
+            </svg>
+            <span>Settings</span>
+          </button>
+          
+          <button class="nav-item" data-target="page-about">
+            <svg viewBox="0 0 24 24">
+              <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" />
+            </svg>
+            <span>About</span>
+          </button>
+        </nav>
+        
+        <div class="sidebar-footer">
+          <div>Version 2.0</div>
+          <div>Professional Edition</div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT VIEW -->
+      <main class="content">
+        
+        <!-- PAGE 1: DOWNLOADER -->
+        <section id="page-downloader" class="page active">
+          <h2>📥 Downloader</h2>
+          
+          <!-- URL Fetch Panel -->
+          <div class="card">
+            <div class="form-group">
+              <label for="video-url">Video / Playlist URL</label>
+              <div class="input-row">
+                <input type="text" id="video-url" placeholder="Paste YouTube, Vimeo, or other media link here..." autocomplete="off" />
+                <button id="btn-fetch" class="btn btn-accent">Fetch Info</button>
+                <button id="btn-clear" class="btn btn-secondary">Clear</button>
+              </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="select-cookies-source">Cookies Authentication Source</label>
+              <div class="input-row" style="margin-bottom: 8px;">
+                <select id="select-cookies-source" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition-fast) ease;">
+                  <option value="none">None (No cookies)</option>
+                  <option value="chrome">Google Chrome (Automatic)</option>
+                  <option value="edge">Microsoft Edge (Automatic)</option>
+                  <option value="firefox">Mozilla Firefox (Automatic)</option>
+                  <option value="brave">Brave Browser (Automatic)</option>
+                  <option value="opera">Opera (Automatic)</option>
+                  <option value="file">Use custom Netscape cookies.txt file...</option>
+                </select>
+              </div>
+              
+              <div id="cookies-file-group" class="input-row" style="display: none; margin-top: 8px;">
+                <input type="text" id="cookies-path" placeholder="Browse custom Netscape cookies.txt..." readonly style="flex: 1;" autocomplete="off" />
+                <button id="btn-browse-cookies" class="btn btn-secondary">Browse</button>
+                <button id="btn-clear-cookies" class="btn btn-secondary">Remove</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Dashboard grid (Only shown when a fetch initiates or completes) -->
+          <div id="downloader-dashboard" class="dl-dashboard" style="display: none;">
+            
+            <!-- Preview Card (Left Column) -->
+            <div class="card preview-card">
+              <!-- Skeleton Loader View -->
+              <div id="preview-skeleton" style="display: none; width: 100%;">
+                <div class="thumbnail-box">
+                  <div class="skeleton-item skeleton-img"></div>
+                </div>
+                <div class="meta-info-grid" style="margin-top: 16px;">
+                  <div class="meta-label skeleton-item" style="width: 50px; height: 14px;"></div>
+                  <div class="skeleton-item skeleton-title"></div>
+                  <div class="meta-label skeleton-item" style="width: 60px; height: 14px;"></div>
+                  <div class="skeleton-item skeleton-text"></div>
+                  <div class="meta-label skeleton-item" style="width: 55px; height: 14px;"></div>
+                  <div class="skeleton-item skeleton-text" style="width: 40%;"></div>
+                  <div class="meta-label skeleton-item" style="width: 45px; height: 14px;"></div>
+                  <div class="skeleton-item skeleton-text" style="width: 50%;"></div>
+                </div>
+              </div>
+              
+              <!-- Loaded Preview View -->
+              <div id="preview-content">
+                <div class="thumbnail-box">
+                  <img id="video-thumbnail" src="" alt="Thumbnail" />
+                </div>
+                <div class="meta-info-grid" style="margin-top: 16px;">
+                  <span class="meta-label">Title:</span>
+                  <span id="video-title" class="meta-value">—</span>
+                  <span class="meta-label">Uploader:</span>
+                  <span id="video-uploader" class="meta-value">—</span>
+                  <span class="meta-label">Duration:</span>
+                  <span id="video-duration" class="meta-value">—</span>
+                  <span class="meta-label">Views:</span>
+                  <span id="video-views" class="meta-value">—</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Controls Card (Right Column) -->
+            <div class="card controls-card">
+              <div class="form-group">
+                <label for="select-progressive">Progressive Format (Video + Audio combined ≤ 1080p)</label>
+                <select id="select-progressive"></select>
+              </div>
+              
+              <div class="form-group">
+                <label for="select-video-only">High Resolution (DASH Video Only - 2K / 4K / 8K)</label>
+                <select id="select-video-only"></select>
+              </div>
+              
+              <div class="form-group">
+                <label for="select-audio-only">Audio Only (Opus / M4A / Webm)</label>
+                <select id="select-audio-only"></select>
+              </div>
+              
+              <div class="form-group">
+                <label for="save-folder">Save Destination</label>
+                <div class="input-row">
+                  <input type="text" id="save-folder" placeholder="Downloads" readonly />
+                  <button id="btn-browse-folder" class="btn btn-secondary">Browse</button>
+                </div>
+              </div>
+              
+              <div class="action-bar">
+                <button id="btn-dl-progressive" class="btn btn-accent">Download Progressive</button>
+                <button id="btn-dl-video" class="btn btn-secondary">Download Video-Only</button>
+                <button id="btn-dl-audio" class="btn btn-secondary">Download Audio-Only</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Progress view -->
+          <div id="progress-panel" class="card progress-panel" style="display: none;">
+            <div class="progress-details">
+              <span id="progress-status-text">Starting download...</span>
+              <span id="progress-percent-lbl" class="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar-container">
+              <div id="progress-bar-fill" class="progress-bar-fill"></div>
+            </div>
+            <div class="progress-details">
+              <span id="progress-downloaded">Downloaded: 0B / 0B</span>
+              <span id="progress-speed">Speed: 0B/s</span>
+              <span id="progress-eta">ETA: --:--</span>
+            </div>
+            <div class="action-bar" style="margin-top: 10px;">
+              <button id="btn-cancel-dl" class="btn btn-warning">Cancel Download</button>
+            </div>
+          </div>
+          
+          <!-- Collapsible log console -->
+          <div class="console-header" id="console-header">
+            <span>Show Action Log</span>
+            <span id="console-arrow">▲</span>
+          </div>
+          <div id="console-log" class="console-box collapsed"></div>
+        </section>
+
+        <!-- PAGE 2: TOOLS -->
+        <section id="page-tools" class="page">
+          <h2>🔧 Tools</h2>
+          <div class="tools-grid">
+            
+            <!-- Tool 1: Merge Video & Audio -->
+            <div class="card tool-card">
+              <div class="tool-header">
+                <span class="tool-icon">🎬</span>
+                <span>Merge Video + Audio</span>
+              </div>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                Combine a high-quality video track with an audio track using FFmpeg.
+              </p>
+              
+              <div class="form-group">
+                <label>Video File (no audio)</label>
+                <div class="input-row">
+                  <input type="text" id="merge-video" placeholder="Select video file..." readonly />
+                  <button id="btn-merge-browse-video" class="btn btn-secondary">Select</button>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>Audio File</label>
+                <div class="input-row">
+                  <input type="text" id="merge-audio" placeholder="Select audio file..." readonly />
+                  <button id="btn-merge-browse-audio" class="btn btn-secondary">Select</button>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>Save Merged File As</label>
+                <div class="input-row">
+                  <input type="text" id="merge-out" placeholder="Choose output file..." readonly />
+                  <button id="btn-merge-browse-out" class="btn btn-secondary">Select</button>
+                </div>
+              </div>
+              
+              <button id="btn-run-merge" class="btn btn-accent btn-success" style="margin-top: 10px; width: 100%;">
+                Merge Files
+              </button>
+            </div>
+            
+            <!-- Tool 2: Convert Audio -->
+            <div class="card tool-card">
+              <div class="tool-header">
+                <span class="tool-icon">🎵</span>
+                <span>Convert Audio</span>
+              </div>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                Convert an existing audio file into MP3 or M4A format using FFmpeg.
+              </p>
+              
+              <div class="form-group">
+                <label>Source Audio File</label>
+                <div class="input-row">
+                  <input type="text" id="conv-src" placeholder="Select audio file..." readonly />
+                  <button id="btn-conv-browse-src" class="btn btn-secondary">Select</button>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>Output Format</label>
+                <select id="conv-format">
+                  <option value="mp3">MP3 Audio (.mp3)</option>
+                  <option value="m4a">M4A AAC Audio (.m4a)</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label>Save Converted File As</label>
+                <div class="input-row">
+                  <input type="text" id="conv-out" placeholder="Choose output file..." readonly />
+                  <button id="btn-conv-browse-out" class="btn btn-secondary">Select</button>
+                </div>
+              </div>
+              
+              <button id="btn-run-conv" class="btn btn-accent btn-success" style="margin-top: 10px; width: 100%;">
+                Convert Audio
+              </button>
+            </div>
+            
+            <!-- Tool 3: Cookies Converter -->
+            <div class="card tool-card">
+              <div class="tool-header">
+                <span class="tool-icon">🍪</span>
+                <span>Cookies Converter</span>
+              </div>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                Convert JSON cookies (exported from extensions like EditThisCookie) to Netscape txt format.
+              </p>
+              
+              <div class="form-group" style="flex-grow: 1;">
+                <label for="cookies-json">Paste JSON Cookies Array</label>
+                <textarea id="cookies-json" class="cookies-textarea" placeholder='[ { "domain": ".youtube.com", ... } ]'></textarea>
+              </div>
+              
+              <button id="btn-run-cookies-conv" class="btn btn-accent" style="width: 100%;">
+                Parse and Save cookies.txt
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- PAGE 3: SETTINGS -->
+        <section id="page-settings" class="page">
+          <h2>⚙️ Settings</h2>
+          
+          <!-- Theme Selection Card -->
+          <div class="card">
+            <h3>🎨 Visual Theme</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 12px; font-size: 0.9rem;">
+              Choose your dashboard colors.
+            </p>
+            
+            <div class="themes-grid">
+              <!-- Tokyo Night -->
+              <div class="theme-card active" data-theme="tokyonight">
+                <div class="theme-swatch">
+                  <div class="theme-swatch-half" style="background-color: #1a1b26;"></div>
+                  <div class="theme-swatch-half" style="background-color: #7aa2f7;"></div>
+                </div>
+                <span class="theme-name">Tokyo Night</span>
+              </div>
+              
+              <!-- Dracula -->
+              <div class="theme-card" data-theme="dracula">
+                <div class="theme-swatch">
+                  <div class="theme-swatch-half" style="background-color: #282a36;"></div>
+                  <div class="theme-swatch-half" style="background-color: #ff79c6;"></div>
+                </div>
+                <span class="theme-name">Dracula</span>
+              </div>
+              
+              <!-- Nord -->
+              <div class="theme-card" data-theme="nord">
+                <div class="theme-swatch">
+                  <div class="theme-swatch-half" style="background-color: #2e3440;"></div>
+                  <div class="theme-swatch-half" style="background-color: #88c0d0;"></div>
+                </div>
+                <span class="theme-name">Nord</span>
+              </div>
+              
+              <!-- Cyberpunk -->
+              <div class="theme-card" data-theme="cyberpunk">
+                <div class="theme-swatch">
+                  <div class="theme-swatch-half" style="background-color: #030008;"></div>
+                  <div class="theme-swatch-half" style="background-color: #ff007f;"></div>
+                </div>
+                <span class="theme-name">Neon Cyberpunk</span>
+              </div>
+
+              <!-- Gruvbox -->
+              <div class="theme-card" data-theme="gruvbox">
+                <div class="theme-swatch">
+                  <div class="theme-swatch-half" style="background-color: #1d2021;"></div>
+                  <div class="theme-swatch-half" style="background-color: #83a598;"></div>
+                </div>
+                <span class="theme-name">Gruvbox Dark</span>
+              </div>
+              
+              <!-- Soft Pastel -->
+              <div class="theme-card" data-theme="pastel">
+                <div class="theme-swatch">
+                  <div class="theme-swatch-half" style="background-color: #f4f6ff;"></div>
+                  <div class="theme-swatch-half" style="background-color: #0b84ff;"></div>
+                </div>
+                <span class="theme-name">Soft Pastel</span>
+              </div>
+              
+              <!-- Sakura Pink -->
+              <div class="theme-card" data-theme="sakura">
+                <div class="theme-swatch">
+                  <div class="theme-swatch-half" style="background-color: #fce4ec;"></div>
+                  <div class="theme-swatch-half" style="background-color: #ec407a;"></div>
+                </div>
+                <span class="theme-name">Sakura Pink</span>
+              </div>
+
+              <!-- Monochrome Dark -->
+              <div class="theme-card" data-theme="monochrome">
+                <div class="theme-swatch">
+                  <div class="theme-swatch-half" style="background-color: #0a0a0a;"></div>
+                  <div class="theme-swatch-half" style="background-color: #aaaaaa;"></div>
+                </div>
+                <span class="theme-name">Monochrome</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Path Configuration Card -->
+          <div class="card">
+            <h3>⚙️ Path Configurations</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.9rem;">
+              Set directories for FFmpeg and yt-dlp.
+            </p>
+            
+            <div class="form-group">
+              <label for="settings-ffmpeg">FFmpeg Folder or Executable Path</label>
+              <div class="input-row">
+                <input type="text" id="settings-ffmpeg" placeholder="e.g. C:\ffmpeg\bin" readonly />
+                <button id="btn-settings-ffmpeg-browse" class="btn btn-secondary">Browse</button>
+                <button id="btn-settings-ffmpeg-verify" class="btn btn-secondary">Verify FFmpeg</button>
+              </div>
+              <div class="verify-row">
+                <span id="badge-ffmpeg" class="verify-badge unverified">
+                  <span>●</span> Unverified
+                </span>
+                <span id="version-ffmpeg" style="font-size: 0.85rem; color: var(--text-secondary);"></span>
+              </div>
+            </div>
+            
+            <div class="form-group" style="margin-top: 16px; margin-bottom: 0;">
+              <label for="settings-ytdlp">Custom yt-dlp Path (Optional)</label>
+              <div class="input-row">
+                <input type="text" id="settings-ytdlp" placeholder="Leave empty to use system yt-dlp" readonly />
+                <button id="btn-settings-ytdlp-browse" class="btn btn-secondary">Browse</button>
+                <button id="btn-settings-ytdlp-verify" class="btn btn-secondary">Verify yt-dlp</button>
+              </div>
+              <div class="verify-row">
+                <span id="badge-ytdlp" class="verify-badge unverified">
+                  <span>●</span> Unverified
+                </span>
+                <span id="version-ytdlp" style="font-size: 0.85rem; color: var(--text-secondary);"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PAGE 4: ABOUT -->
+        <section id="page-about" class="page">
+          <div class="about-header">
+            <h2 class="about-app-name" style="border: none; margin: 0; padding: 0;">MediaPull</h2>
+            <span class="about-tagline">Download once. Watch forever.</span>
+            <span class="about-version">Version 2.0 — Professional Tauri Edition</span>
+          </div>
+          
+          <div class="about-grid">
+            <!-- Left Grid -->
+            <div class="card">
+              <h3>✨ Features</h3>
+              <div class="features-list" style="margin-top: 12px;">
+                <div class="feature-item">
+                  <span class="feature-bullet">✓</span>
+                  <span>Multi-resolution downloads (up to 8K resolution)</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-bullet">✓</span>
+                  <span>Audio extraction in Opus, MP3, and M4A</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-bullet">✓</span>
+                  <span>Fast copy-stream video & audio merging</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-bullet">✓</span>
+                  <span>8 Modern visual dashboard themes</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-bullet">✓</span>
+                  <span>Optimistic UI skeleton loading states</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-bullet">✓</span>
+                  <span>Native file & folder system dialogue binding</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Grid -->
+            <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3>🛠️ Technologies Used</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 12px; font-size: 0.9rem;">
+                  Built using the desktop standard stack.
+                </p>
+                <div class="tech-tag-container">
+                  <span class="tech-tag" style="border-color: #f7e018; color: #f7e018;">Vanilla Javascript</span>
+                  <span class="tech-tag" style="border-color: #264de4; color: #264de4;">CSS Grid / Flexbox</span>
+                  <span class="tech-tag" style="border-color: #ffc0cb; color: #ffc0cb;">HTML5 Semantic</span>
+                  <span class="tech-tag" style="border-color: #de5f35; color: #de5f35;">Rust Backend</span>
+                  <span class="tech-tag" style="border-color: #2496ed; color: #2496ed;">Tauri 2.0 Desktop</span>
+                  <span class="tech-tag" style="border-color: #9ecc6a; color: #9ecc6a;">yt-dlp Core</span>
+                  <span class="tech-tag" style="border-color: #ff9e64; color: #ff9e64;">FFmpeg Engine</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="about-love">
+            Made with love by Gautam Kumar
+            <div class="about-links" style="margin-top: 14px; display: flex; justify-content: center; gap: 24px;">
+              <a href="https://www.youtube.com/@limited_gaming_zone." class="about-link" style="color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">📺 YouTube</a>
+              <a href="https://github.com/gautamcoder235/" class="about-link" style="color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">🐙 GitHub</a>
+            </div>
+          </div>
+        </section>
+        
+      </main>
+    </div>
+  </body>
+</html>
