@@ -155,12 +155,12 @@
             <!-- Controls Card (Right Column) -->
             <div class="card controls-card">
               <div class="form-group">
-                <label for="select-progressive">Progressive Format (Video + Audio combined ≤ 1080p)</label>
+                <label for="select-progressive">Video + Audio (Automerged up to 8K)</label>
                 <select id="select-progressive"></select>
               </div>
               
               <div class="form-group">
-                <label for="select-video-only">High Resolution (1080p / 2K / 4K / 8K — Automerged with Audio)</label>
+                <label for="select-video-only">Video Only (No Audio — 1080p / 2K / 4K / 8K)</label>
                 <select id="select-video-only"></select>
               </div>
               
@@ -178,9 +178,9 @@
               </div>
               
               <div class="action-bar">
-                <button id="btn-dl-progressive" class="btn btn-accent" title="Download standard formats (up to 720p) in a single stream">Download Standard (up to 720p)</button>
-                <button id="btn-dl-video" class="btn btn-secondary" title="Download high resolution video stream and merge it automatically with high quality audio">Download High-Res (Video + Audio)</button>
-                <button id="btn-dl-audio" class="btn btn-secondary" title="Download audio only stream">Download Audio Only</button>
+                <button id="btn-dl-progressive" class="btn btn-accent" title="Download selected resolution and automatically merge with highest quality audio">Download Video + Audio</button>
+                <button id="btn-dl-video" class="btn btn-secondary" title="Download selected video stream only (no audio)">Download Video Only</button>
+                <button id="btn-dl-audio" class="btn btn-secondary" title="Download selected audio stream only">Download Audio Only</button>
               </div>
             </div>
           </div>

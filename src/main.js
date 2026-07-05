@@ -29,6 +29,7 @@ let appSettings = {
 
 // Memory cache for fetched video information to enable "Instant Reload"
 const metadataCache = new Map();
+const videoOnlyIds = new Set();
 
 // Helper to get cookies parameter for backend based on selected UI source
 function getCookiesParam() {
@@ -210,9 +211,11 @@ function populateFormats(formats) {
   videoSelect.innerHTML = "";
   audioSelect.innerHTML = "";
   
-  const progressive = [];
-  const videoOnly = [];
-  const audioOnly = [];
+  videoOnlyIds.clear();
+  
+  const videoWithAudioList = [];
+  const videoOnlyList = [];
+  const audioOnlyList = [];
   
   formats.forEach(f => {
     const fmtId = f.format_id || f.id || "";
@@ -236,21 +239,24 @@ function populateFormats(formats) {
     
     const item = { id: fmtId, label, resolution, size, height: f.height || 0, abr };
     
-    if (vcodec !== "none" && acodec !== "none") {
-      progressive.push(item);
-    } else if (vcodec !== "none") {
-      videoOnly.push(item);
+    if (vcodec !== "none") {
+      // All video formats (progressive and video-only) go to the first dropdown!
+      videoWithAudioList.push(item);
+      
+      // Only video-only formats go to the second dropdown
+      if (acodec === "none") {
+        videoOnlyList.push(item);
+        videoOnlyIds.add(fmtId);
+      }
     } else if (acodec !== "none") {
-      audioOnly.push(item);
-    } else {
-      progressive.push(item);
+      audioOnlyList.push(item);
     }
   });
   
   // Sort formats
-  progressive.sort((a, b) => (b.height - a.height) || (b.size - a.size));
-  videoOnly.sort((a, b) => (b.height - a.height) || (b.size - a.size));
-  audioOnly.sort((a, b) => (b.abr - a.abr) || (b.size - a.size));
+  videoWithAudioList.sort((a, b) => (b.height - a.height) || (b.size - a.size));
+  videoOnlyList.sort((a, b) => (b.height - a.height) || (b.size - a.size));
+  audioOnlyList.sort((a, b) => (b.abr - a.abr) || (b.size - a.size));
   
   // Helper to add options
   const addOptions = (select, list) => {
@@ -271,9 +277,9 @@ function populateFormats(formats) {
     }
   };
   
-  addOptions(progSelect, progressive);
-  addOptions(videoSelect, videoOnly);
-  addOptions(audioSelect, audioOnly);
+  addOptions(progSelect, videoWithAudioList);
+  addOptions(videoSelect, videoOnlyList);
+  addOptions(audioSelect, audioOnlyList);
 }
 
 // Fetch Video Info
@@ -761,12 +767,18 @@ function initDownloaderButtons() {
   // Action buttons
   document.getElementById("btn-dl-progressive").addEventListener("click", () => {
     const val = document.getElementById("select-progressive").value;
-    if (val) startDownload(val);
+    if (val) {
+      if (videoOnlyIds.has(val)) {
+        startDownload(`${val}+bestaudio`);
+      } else {
+        startDownload(val);
+      }
+    }
   });
 
   document.getElementById("btn-dl-video").addEventListener("click", () => {
     const val = document.getElementById("select-video-only").value;
-    if (val) startDownload(`${val}+bestaudio`);
+    if (val) startDownload(val);
   });
 
   document.getElementById("btn-dl-audio").addEventListener("click", () => {
