@@ -7,6 +7,22 @@ MediaPull is a professional, high-performance video downloader and media managem
 
 ---
 
+## 📸 Project Showcase
+
+<p align="center">
+  <img src="screenshots/screenshot1.png" width="48%" alt="MediaPull Downloader Panel"/>
+  <img src="screenshots/screenshot2.png" width="48%" alt="MediaPull Formats Selection"/>
+</p>
+<p align="center">
+  <img src="screenshots/screenshot3.png" width="48%" alt="MediaPull Download Progress"/>
+  <img src="screenshots/screenshot4.png" width="48%" alt="MediaPull Settings Panel"/>
+</p>
+<p align="center">
+  <img src="screenshots/screenshot5.png" width="60%" alt="MediaPull About Screen"/>
+</p>
+
+---
+
 ## ✨ Features
 
 - **🎬 Multi-Format Downloads**
