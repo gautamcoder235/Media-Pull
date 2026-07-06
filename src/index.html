@@ -272,20 +272,20 @@
               </button>
             </div>
             
-            <!-- Tool 2: Convert Audio -->
+            <!-- Tool 2: Media Format Converter -->
             <div class="card tool-card">
               <div class="tool-header">
-                <span class="tool-icon">🎵</span>
-                <span>Convert Audio</span>
+                <span class="tool-icon">🔄</span>
+                <span>Media Converter</span>
               </div>
               <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                Convert an existing audio file into MP3 or M4A format using FFmpeg.
+                Convert existing media files (video or audio) into different formats using FFmpeg.
               </p>
               
               <div class="form-group">
-                <label>Source Audio File</label>
+                <label>Source File</label>
                 <div class="input-row">
-                  <input type="text" id="conv-src" placeholder="Select audio file..." readonly />
+                  <input type="text" id="conv-src" placeholder="Select video or audio file..." readonly />
                   <button id="btn-conv-browse-src" class="btn btn-secondary">Select</button>
                 </div>
               </div>
@@ -293,8 +293,18 @@
               <div class="form-group">
                 <label>Output Format</label>
                 <select id="conv-format">
-                  <option value="mp3">MP3 Audio (.mp3)</option>
-                  <option value="m4a">M4A AAC Audio (.m4a)</option>
+                  <optgroup label="Audio Formats">
+                    <option value="mp3">MP3 Audio (.mp3)</option>
+                    <option value="m4a">M4A AAC Audio (.m4a)</option>
+                    <option value="wav">WAV Audio (.wav)</option>
+                    <option value="flac">FLAC Lossless Audio (.flac)</option>
+                    <option value="ogg">Opus OGG Audio (.ogg)</option>
+                  </optgroup>
+                  <optgroup label="Video Formats">
+                    <option value="mp4">MP4 Video (H.264 / AAC) (.mp4)</option>
+                    <option value="mkv">MKV Video (H.264 / AAC) (.mkv)</option>
+                    <option value="webm">WebM Video (VP9 / Opus) (.webm)</option>
+                  </optgroup>
                 </select>
               </div>
               
@@ -307,7 +317,7 @@
               </div>
               
               <button id="btn-run-conv" class="btn btn-accent btn-success" style="margin-top: 10px; width: 100%;">
-                Convert Audio
+                Convert Media File
               </button>
             </div>
             

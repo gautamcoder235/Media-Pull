@@ -174,6 +174,10 @@ body {
   cursor: default;
 }
 
+.titlebar-drag-region * {
+  pointer-events: none;
+}
+
 .titlebar-logo {
   font-size: 0.95rem;
   margin-right: 8px;

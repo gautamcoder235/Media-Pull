@@ -607,22 +607,86 @@ async function initFilePickers() {
     if (res) document.getElementById("merge-out").value = res;
   });
 
-  // Tools: Audio conversion selectors
+  // Dynamic formatting selector helper for Media Converter
+  function updateConverterFormats(sourcePath) {
+    const select = document.getElementById("conv-format");
+    const ext = sourcePath.split('.').pop().toLowerCase();
+    
+    const audioExtensions = ["mp3", "m4a", "opus", "wav", "flac", "ogg"];
+    const isAudio = audioExtensions.includes(ext);
+    
+    const currentVal = select.value;
+    select.innerHTML = "";
+    
+    // Audio Optgroup
+    const audioGroup = document.createElement("optgroup");
+    audioGroup.label = "Audio Formats";
+    
+    const audioOpts = [
+      { value: "mp3", text: "MP3 Audio (.mp3)" },
+      { value: "m4a", text: "M4A AAC Audio (.m4a)" },
+      { value: "wav", text: "WAV Audio (.wav)" },
+      { value: "flac", text: "FLAC Lossless Audio (.flac)" },
+      { value: "ogg", text: "Opus OGG Audio (.ogg)" }
+    ];
+    
+    audioOpts.forEach(o => {
+      const opt = document.createElement("option");
+      opt.value = o.value;
+      opt.textContent = o.text;
+      audioGroup.appendChild(opt);
+    });
+    select.appendChild(audioGroup);
+    
+    // Video Optgroup (only if not an audio source file!)
+    if (!isAudio) {
+      const videoGroup = document.createElement("optgroup");
+      videoGroup.label = "Video Formats";
+      
+      const videoOpts = [
+        { value: "mp4", text: "MP4 Video (H.264 / AAC) (.mp4)" },
+        { value: "mkv", text: "MKV Video (H.264 / AAC) (.mkv)" },
+        { value: "webm", text: "WebM Video (VP9 / Opus) (.webm)" }
+      ];
+      
+      videoOpts.forEach(o => {
+        const opt = document.createElement("option");
+        opt.value = o.value;
+        opt.textContent = o.text;
+        videoGroup.appendChild(opt);
+      });
+      select.appendChild(videoGroup);
+    }
+    
+    // Restore selection if still available, else default to mp3
+    const availableOpts = Array.from(select.querySelectorAll("option")).map(opt => opt.value);
+    if (availableOpts.includes(currentVal)) {
+      select.value = currentVal;
+    } else {
+      select.value = "mp3";
+    }
+  }
+
+  // Tools: Media conversion selectors
   document.getElementById("btn-conv-browse-src").addEventListener("click", async () => {
     const res = await invoke("select_file", {
-      title: "Select Audio Source File",
-      filterName: "Audio Files",
-      filterExts: ["opus", "m4a", "webm", "ogg", "wav"]
+      title: "Select Media Source File",
+      filterName: "Media Files",
+      filterExts: ["mp4", "mkv", "webm", "avi", "mov", "mp3", "m4a", "opus", "wav", "flac", "ogg"]
     });
-    if (res) document.getElementById("conv-src").value = res;
+    if (res) {
+      document.getElementById("conv-src").value = res;
+      updateConverterFormats(res);
+      document.getElementById("conv-out").value = "";
+    }
   });
 
   document.getElementById("btn-conv-browse-out").addEventListener("click", async () => {
     const format = document.getElementById("conv-format").value;
     const name = `converted.${format}`;
-    const desc = format.toUpperCase() + " Audio";
+    const desc = format.toUpperCase() + " Media File";
     const res = await invoke("select_save_file", {
-      title: `Save Converted Audio`,
+      title: `Save Converted File`,
       defaultName: name,
       filterName: `${desc} (*.${format})`,
       filterExts: [format]
@@ -674,17 +738,17 @@ function initToolsExecutors() {
     const out = document.getElementById("conv-out").value;
     
     if (!src || !out) {
-      alert("Please configure source and destination audio files first.");
+      alert("Please configure source and destination files first.");
       return;
     }
     
     const btn = document.getElementById("btn-run-conv");
     btn.disabled = true;
     btn.textContent = "Converting...";
-    logToConsole(`Converting audio file: ${src} → ${out} (${format})`);
+    logToConsole(`Converting media file: ${src} → ${out} (${format})`);
     
     try {
-      await invoke("convert_audio_format", {
+      await invoke("convert_media", {
         inPath: src,
         outPath: out,
         format: format,
@@ -697,7 +761,7 @@ function initToolsExecutors() {
       alert(`Conversion failed:\n${err}`);
     } finally {
       btn.disabled = false;
-      btn.textContent = "Convert Audio";
+      btn.textContent = "Convert Media File";
     }
   });
 

@@ -158,23 +158,6 @@ async fn download_ytdlp(window: tauri::Window, app_handle: tauri::AppHandle) -> 
     res
 }
 
-fn walk_dir(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
-    let mut files = Vec::new();
-    if let Ok(entries) = std::fs::read_dir(dir) {
-        for entry in entries {
-            if let Ok(e) = entry {
-                let path = e.path();
-                if path.is_dir() {
-                    files.extend(walk_dir(&path));
-                } else {
-                    files.push(path);
-                }
-            }
-        }
-    }
-    files
-}
-
 #[tauri::command]
 fn load_app_settings(app_handle: tauri::AppHandle) -> Result<serde_json::Value, String> {
     let config_dir = app_handle.path().app_config_dir().map_err(|e| e.to_string())?;
@@ -514,7 +497,7 @@ fn merge_media(
 }
 
 #[tauri::command]
-fn convert_audio_format(
+fn convert_media(
     app_handle: tauri::AppHandle,
     in_path: String,
     out_path: String,
@@ -523,15 +506,42 @@ fn convert_audio_format(
 ) -> Result<String, String> {
     let ffmpeg_bin = get_binary_path(&app_handle, ffmpeg_path, "ffmpeg")?;
     
-    let codec = if format.to_lowercase() == "mp3" {
-        vec!["-c:a", "libmp3lame", "-b:a", "192k"]
-    } else {
-        vec!["-c:a", "aac", "-b:a", "192k"]
-    };
+    let format_lower = format.to_lowercase();
+    let mut args = vec!["-y".to_string(), "-i".to_string(), in_path];
     
-    let mut args = vec!["-y", "-i", &in_path, "-vn"];
-    args.extend(codec);
-    args.push(&out_path);
+    match format_lower.as_str() {
+        // Audio Formats
+        "mp3" => {
+            args.extend(vec!["-vn".to_string(), "-c:a".to_string(), "libmp3lame".to_string(), "-b:a".to_string(), "192k".to_string()]);
+        },
+        "m4a" => {
+            args.extend(vec!["-vn".to_string(), "-c:a".to_string(), "aac".to_string(), "-b:a".to_string(), "192k".to_string()]);
+        },
+        "wav" => {
+            args.extend(vec!["-vn".to_string(), "-c:a".to_string(), "pcm_s16le".to_string()]);
+        },
+        "flac" => {
+            args.extend(vec!["-vn".to_string(), "-c:a".to_string(), "flac".to_string()]);
+        },
+        "ogg" => {
+            args.extend(vec!["-vn".to_string(), "-c:a".to_string(), "libopus".to_string(), "-b:a".to_string(), "128k".to_string()]);
+        },
+        // Video Formats
+        "mp4" => {
+            args.extend(vec!["-c:v".to_string(), "libx264".to_string(), "-pix_fmt".to_string(), "yuv420p".to_string(), "-c:a".to_string(), "aac".to_string(), "-b:a".to_string(), "192k".to_string()]);
+        },
+        "mkv" => {
+            args.extend(vec!["-c:v".to_string(), "libx264".to_string(), "-c:a".to_string(), "aac".to_string(), "-b:a".to_string(), "192k".to_string()]);
+        },
+        "webm" => {
+            args.extend(vec!["-c:v".to_string(), "libvpx-vp9".to_string(), "-crf".to_string(), "30".to_string(), "-b:v".to_string(), "0".to_string(), "-c:a".to_string(), "libopus".to_string()]);
+        },
+        _ => {
+            args.extend(vec!["-c".to_string(), "copy".to_string()]);
+        }
+    }
+    
+    args.push(out_path.clone());
     
     let output = create_command(&ffmpeg_bin)
         .args(&args)
@@ -542,7 +552,7 @@ fn convert_audio_format(
         Ok(out_path)
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        Err(format!("ffmpeg audio conversion failed: {}", stderr))
+        Err(format!("ffmpeg conversion failed: {}", stderr))
     }
 }
 
@@ -569,7 +579,7 @@ pub fn run() {
             download_media,
             cancel_download,
             merge_media,
-            convert_audio_format,
+            convert_media,
             download_ytdlp
         ])
         .run(tauri::generate_context!())
