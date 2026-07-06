@@ -36,12 +36,13 @@ struct ProgressPayload {
     status_text: String,
 }
 
-fn get_binary_path(dir_path: Option<String>, name: &str) -> Result<String, String> {
+fn get_binary_path(app_handle: &tauri::AppHandle, dir_path: Option<String>, name: &str) -> Result<String, String> {
     let mut exe_name = name.to_string();
     if cfg!(target_os = "windows") {
         exe_name.push_str(".exe");
     }
     
+    // 1. Check custom path in settings first (if user configured one)
     if let Some(path_str) = dir_path {
         if !path_str.trim().is_empty() {
             let path = std::path::Path::new(&path_str);
@@ -56,6 +57,15 @@ fn get_binary_path(dir_path: Option<String>, name: &str) -> Result<String, Strin
         }
     }
     
+    // 2. Check bundled resources/bin/ directory
+    if let Ok(resource_dir) = app_handle.path().resource_dir() {
+        let bundled_path = resource_dir.join("bin").join(&exe_name);
+        if bundled_path.exists() {
+            return Ok(bundled_path.to_string_lossy().to_string());
+        }
+    }
+    
+    // 3. Fallback to system environment PATH
     Ok(exe_name)
 }
 
@@ -90,8 +100,8 @@ fn select_save_file(title: String, default_name: String, filter_name: String, fi
 }
 
 #[tauri::command]
-fn verify_binary(path: String, name: String) -> Result<String, String> {
-    let bin_path = get_binary_path(Some(path), &name)?;
+fn verify_binary(app_handle: tauri::AppHandle, path: String, name: String) -> Result<String, String> {
+    let bin_path = get_binary_path(&app_handle, Some(path), &name)?;
     let version_arg = if name.to_lowercase().contains("ffmpeg") {
         "-version"
     } else {
@@ -204,6 +214,41 @@ async fn download_ffmpeg(window: tauri::Window, app_handle: tauri::AppHandle) ->
     res
 }
 
+#[tauri::command]
+async fn download_ytdlp(window: tauri::Window, app_handle: tauri::AppHandle) -> Result<String, String> {
+    let app_dir = app_handle.path().app_config_dir()
+        .map_err(|e| format!("Failed to get app config dir: {}", e))?;
+    
+    let ytdlp_path = app_dir.join("yt-dlp.exe");
+    
+    let window_clone = window.clone();
+    
+    let res = tokio::task::spawn_blocking(move || {
+        let _ = window_clone.emit("ytdlp-download-status", "Downloading latest yt-dlp.exe (approx. 15MB)...");
+        
+        let _ = std::fs::create_dir_all(&app_dir);
+        
+        let download_status = create_command("powershell")
+            .arg("-NoProfile")
+            .arg("-Command")
+            .arg(format!(
+                "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile '{}'",
+                ytdlp_path.to_string_lossy()
+            ))
+            .status();
+            
+        match download_status {
+            Ok(status) if status.success() => {
+                let _ = window_clone.emit("ytdlp-download-status", "yt-dlp installation completed!");
+                Ok(ytdlp_path.to_string_lossy().to_string())
+            },
+            _ => Err("Failed to download yt-dlp.exe. Please check your internet connection.".to_string()),
+        }
+    }).await.map_err(|e| format!("Task execution failed: {}", e))?;
+    
+    res
+}
+
 fn walk_dir(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
     let mut files = Vec::new();
     if let Ok(entries) = std::fs::read_dir(dir) {
@@ -290,11 +335,12 @@ fn convert_cookies(json_content: String) -> Result<String, String> {
 
 #[tauri::command]
 fn fetch_video_metadata(
+    app_handle: tauri::AppHandle,
     url: String,
     cookies_path: Option<String>,
     ytdlp_path: Option<String>,
 ) -> Result<String, String> {
-    let ytdlp_bin = get_binary_path(ytdlp_path, "yt-dlp")?;
+    let ytdlp_bin = get_binary_path(&app_handle, ytdlp_path, "yt-dlp")?;
     
     let mut cmd = create_command(&ytdlp_bin);
     cmd.env("PYTHONWARNINGS", "ignore");
@@ -325,6 +371,7 @@ fn fetch_video_metadata(
 
 #[tauri::command]
 fn download_media(
+    app_handle: tauri::AppHandle,
     window: tauri::Window,
     state: tauri::State<'_, ActiveDownload>,
     url: String,
@@ -335,7 +382,7 @@ fn download_media(
     ffmpeg_path: Option<String>,
     convert_to_mp3: bool,
 ) -> Result<(), String> {
-    let ytdlp_bin = get_binary_path(ytdlp_path, "yt-dlp")?;
+    let ytdlp_bin = get_binary_path(&app_handle, ytdlp_path, "yt-dlp")?;
     
     let mut args = vec![
         "--newline".to_string(),
@@ -360,16 +407,39 @@ fn download_media(
         }
     }
     
-    if let Some(ffmpeg) = ffmpeg_path {
+    let resolved_ffmpeg = if let Some(ref ffmpeg) = ffmpeg_path {
         if !ffmpeg.trim().is_empty() {
-            let ffmpeg_bin_dir = if std::path::Path::new(&ffmpeg).is_file() {
-                std::path::Path::new(&ffmpeg).parent().unwrap().to_string_lossy().to_string()
-            } else {
-                ffmpeg
-            };
-            args.push("--ffmpeg-location".to_string());
-            args.push(ffmpeg_bin_dir);
+            Some(ffmpeg.clone())
+        } else {
+            None
         }
+    } else {
+        None
+    };
+
+    let ffmpeg_location = if let Some(ffmpeg) = resolved_ffmpeg {
+        if std::path::Path::new(&ffmpeg).is_file() {
+            Some(std::path::Path::new(&ffmpeg).parent().unwrap().to_path_buf())
+        } else {
+            Some(std::path::Path::new(&ffmpeg).to_path_buf())
+        }
+    } else {
+        // Fallback to check bundled bin folder for ffmpeg
+        if let Ok(resource_dir) = app_handle.path().resource_dir() {
+            let bundled_ffmpeg = resource_dir.join("bin").join("ffmpeg.exe");
+            if bundled_ffmpeg.exists() {
+                Some(resource_dir.join("bin"))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    };
+
+    if let Some(location) = ffmpeg_location {
+        args.push("--ffmpeg-location".to_string());
+        args.push(location.to_string_lossy().to_string());
     }
     
     if convert_to_mp3 {
@@ -513,12 +583,13 @@ fn cancel_download(state: tauri::State<'_, ActiveDownload>) -> Result<String, St
 
 #[tauri::command]
 fn merge_media(
+    app_handle: tauri::AppHandle,
     video_path: String,
     audio_path: String,
     out_path: String,
     ffmpeg_path: Option<String>,
 ) -> Result<String, String> {
-    let ffmpeg_bin = get_binary_path(ffmpeg_path, "ffmpeg")?;
+    let ffmpeg_bin = get_binary_path(&app_handle, ffmpeg_path, "ffmpeg")?;
     
     let output = create_command(&ffmpeg_bin)
         .args(&["-y", "-i", &video_path, "-i", &audio_path, "-c:v", "copy", "-c:a", "copy", &out_path])
@@ -535,12 +606,13 @@ fn merge_media(
 
 #[tauri::command]
 fn convert_audio_format(
+    app_handle: tauri::AppHandle,
     in_path: String,
     out_path: String,
     format: String,
     ffmpeg_path: Option<String>,
 ) -> Result<String, String> {
-    let ffmpeg_bin = get_binary_path(ffmpeg_path, "ffmpeg")?;
+    let ffmpeg_bin = get_binary_path(&app_handle, ffmpeg_path, "ffmpeg")?;
     
     let codec = if format.to_lowercase() == "mp3" {
         vec!["-c:a", "libmp3lame", "-b:a", "192k"]
@@ -589,7 +661,8 @@ pub fn run() {
             cancel_download,
             merge_media,
             convert_audio_format,
-            download_ffmpeg
+            download_ffmpeg,
+            download_ytdlp
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

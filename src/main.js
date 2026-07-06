@@ -577,6 +577,36 @@ async function initFilePickers() {
     verifyBinaryPath(path, "yt-dlp", "badge-ytdlp", "version-ytdlp");
   });
 
+  // Settings: yt-dlp automatic downloader
+  document.getElementById("btn-settings-ytdlp-download").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-settings-ytdlp-download");
+    const statusEl = document.getElementById("ytdlp-dl-status");
+    
+    btn.disabled = true;
+    statusEl.textContent = "Initiating installer...";
+    logToConsole("Starting automatic yt-dlp downloader...");
+    
+    try {
+      const newPath = await invoke("download_ytdlp");
+      statusEl.textContent = "yt-dlp installation completed!";
+      logToConsole(`yt-dlp successfully downloaded at: ${newPath}`);
+      
+      // Update UI paths
+      document.getElementById("settings-ytdlp").value = newPath;
+      appSettings.ytdlp_path = newPath;
+      await saveSettings();
+      
+      // Verify path immediately
+      await verifyBinaryPath(newPath, "yt-dlp", "badge-ytdlp", "version-ytdlp");
+    } catch (err) {
+      statusEl.textContent = "Installation failed.";
+      logToConsole(`yt-dlp downloader failed: ${err}`, "error");
+      alert(`yt-dlp installation failed:\n${err}`);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
   // Tools: Merge selectors
   document.getElementById("btn-merge-browse-video").addEventListener("click", async () => {
     const res = await invoke("select_file", {
@@ -881,6 +911,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   await listen("ffmpeg-download-status", (event) => {
     document.getElementById("ffmpeg-dl-status").textContent = event.payload;
     logToConsole(`FFmpeg Installer: ${event.payload}`);
+  });
+
+  // Listen to yt-dlp automatic downloader status changes
+  await listen("ytdlp-download-status", (event) => {
+    document.getElementById("ytdlp-dl-status").textContent = event.payload;
+    logToConsole(`yt-dlp Installer: ${event.payload}`);
   });
   
   // Handle About Page Link Clicks (opening in default system browser)
