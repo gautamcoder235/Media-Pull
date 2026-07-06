@@ -424,22 +424,17 @@
           <div class="card">
             <h3>⚙️ Path Configurations</h3>
             <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.9rem;">
-              Set directories for FFmpeg and yt-dlp.
+              Set directories for FFmpeg and yt-dlp, or leave empty to use the built-in bundled binaries.
             </p>
             
              <div class="form-group">
               <label for="settings-ffmpeg">FFmpeg Folder or Executable Path</label>
               <div class="input-row">
-                <input type="text" id="settings-ffmpeg" placeholder="e.g. C:\ffmpeg\bin" readonly autocomplete="off" />
+                <input type="text" id="settings-ffmpeg" placeholder="Leave empty to use bundled FFmpeg" readonly autocomplete="off" />
                 <button id="btn-settings-ffmpeg-browse" class="btn btn-secondary">Browse</button>
                 <button id="btn-settings-ffmpeg-verify" class="btn btn-secondary">Verify FFmpeg</button>
               </div>
-              <div style="margin-top: 8px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <button id="btn-settings-ffmpeg-download" class="btn btn-accent" style="padding: 8px 14px; font-size: 0.85rem;" title="Download and install FFmpeg release essentials automatically into application folder">
-                  📥 Download FFmpeg Automatically
-                </button>
-                <span id="ffmpeg-dl-status" style="font-size: 0.85rem; color: var(--accent-green); font-weight: 600; letter-spacing: 0.2px;"></span>
-              </div>
+
               <div class="verify-row">
                 <span id="badge-ffmpeg" class="verify-badge unverified">
                   <span>●</span> Unverified
@@ -451,7 +446,7 @@
             <div class="form-group" style="margin-top: 16px; margin-bottom: 0;">
               <label for="settings-ytdlp">Custom yt-dlp Path (Optional)</label>
               <div class="input-row">
-                <input type="text" id="settings-ytdlp" placeholder="Leave empty to use system yt-dlp" readonly />
+                <input type="text" id="settings-ytdlp" placeholder="Leave empty to use bundled yt-dlp" readonly />
                 <button id="btn-settings-ytdlp-browse" class="btn btn-secondary">Browse</button>
                 <button id="btn-settings-ytdlp-verify" class="btn btn-secondary">Verify yt-dlp</button>
               </div>
