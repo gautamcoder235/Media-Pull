@@ -100,7 +100,7 @@ fn select_save_file(title: String, default_name: String, filter_name: String, fi
 }
 
 #[tauri::command]
-fn verify_binary(app_handle: tauri::AppHandle, path: String, name: String) -> Result<String, String> {
+async fn verify_binary(app_handle: tauri::AppHandle, path: String, name: String) -> Result<String, String> {
     let bin_path = get_binary_path(&app_handle, Some(path), &name)?;
     let version_arg = if name.to_lowercase().contains("ffmpeg") {
         "-version"
@@ -226,7 +226,7 @@ fn convert_cookies(json_content: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn fetch_video_metadata(
+async fn fetch_video_metadata(
     app_handle: tauri::AppHandle,
     url: String,
     cookies_path: Option<String>,
@@ -474,7 +474,7 @@ fn cancel_download(state: tauri::State<'_, ActiveDownload>) -> Result<String, St
 }
 
 #[tauri::command]
-fn merge_media(
+async fn merge_media(
     app_handle: tauri::AppHandle,
     video_path: String,
     audio_path: String,
@@ -497,7 +497,7 @@ fn merge_media(
 }
 
 #[tauri::command]
-fn convert_media(
+async fn convert_media(
     app_handle: tauri::AppHandle,
     in_path: String,
     out_path: String,
