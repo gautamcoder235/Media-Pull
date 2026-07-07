@@ -236,7 +236,7 @@ async fn fetch_video_metadata(
     
     let mut cmd = create_command(&ytdlp_bin);
     cmd.env("PYTHONWARNINGS", "ignore");
-    cmd.args(&["--dump-json", "--skip-download", "--no-warnings", &url]);
+    cmd.args(&["--dump-json", "--skip-download", "--no-playlist", "--no-warnings", &url]);
     
     if let Some(cookies) = cookies_path {
         if !cookies.trim().is_empty() {
